@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>多网页嵌入</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 10px;
+      }
+      .container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-auto-rows: minmax(200px, auto);
+        gap: 10px;
+      }
+      .frame-item {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+      .button-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+      }
+      button {
+        margin: 10px;
+        padding: 6px 12px;
+        font-size: 16px;
+        border-radius: 4px;
+        border: none;
+        color: #fff;
+        background-color: #007bff;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0069d9;
+      }
+      select {
+        margin-left: 10px;
+        padding: 6px 12px;
+        font-size: 16px;
+        border-radius: 4px;
+        border: none;
+        outline: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container"></div>
+    <div class="button-container">
+      <button onclick="addFrame()">添加网页</button>
+      <select id="select-frame" onchange="removeFrame()">
+        <option value="">请选择要删除的网页</option>
+      </select>
+    </div>
+
+    <script>
+      const container = document.querySelector(".container");
+      const selectFrame = document.getElementById("select-frame");
+      const frameUrls = {};
+
+      function addFrame() {
+        const url = prompt("请输入网页地址:");
+        if (url && !frameUrls[url]) {
+          const name = prompt("请输入网页名称:");
+          if (name) {
+            const frameItem = document.createElement("iframe");
+            frameItem.src = url;
+            frameItem.className = "frame-item";
+            frameItem.setAttribute("data-url", url);
+            frameItem.setAttribute("data-name", name);
+            container.appendChild(frameItem);
+            const id = Object.keys(frameUrls).length + 1;
+            addSelectOption(url, name, id);
+            frameUrls[url] = { frame: frameItem, name };
+          }
+        } else if (frameUrls[url]) {
+          alert(`已经存在网址为 ${url} 的网页，请勿重复添加。`);
+        }
+      }
+
+      function addSelectOption(url, name, id) {
+        const option = document.createElement("option");
+        option.value = url;
+        option.textContent = `${id}. ${name}`;
+        selectFrame.appendChild(option);
+      }
+
+      function removeFrame() {
+        const index = selectFrame.selectedIndex;
+        if (index > 0) {
+          const url = selectFrame.options[index].value;
+          const frameItem = frameUrls[url]?.frame;
+          if (frameItem) {
+            container.removeChild(frameItem);
+            selectFrame.remove(index);
+            delete frameUrls[url];
+          }
+          selectFrame.selectedIndex = 0;
+        }
+      }
+    </script>
+  </body>
+</html>
